@@ -49,10 +49,20 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
         super.init(animator: animator, viewPortHandler: viewPortHandler)
         
         self.dataProvider = dataProvider
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleHomeCornerRadius), name: Notification.Name("HomeGraphCornerRadius"), object: nil)
+
+
     }
     
     // [CGRect] per dataset
     private var _buffers = [Buffer]()
+    
+    var fromHomeViewController = false
+    
+    @objc func handleHomeCornerRadius() {
+        fromHomeViewController = true
+    }
     
     open override func initBuffers()
     {
@@ -380,7 +390,12 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
             }
             
             // context.fill(barRect)
-            let bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: [.topRight, .topLeft], cornerRadii: CGSize(width: 5, height: 5))
+            var bezierPath: UIBezierPath
+            if fromHomeViewController {
+                bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: [.topRight, .topLeft], cornerRadii: CGSize(width: 15, height: 15))
+            } else {
+                bezierPath = UIBezierPath(roundedRect: barRect, byRoundingCorners: [.topRight, .topLeft], cornerRadii: CGSize(width: 5, height: 5))
+            }
             context.addPath(bezierPath.cgPath)
             context.drawPath(using: .fill)
             
